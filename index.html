@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>作文名句小卡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=LXGW+WenKai+TC:wght@700&display=swap">
+<style>
+/* 一張可嵌進 Notion 的小卡：稿紙方格出題、紅筆批改，設定與名句庫收在卡片裡的覆蓋層 */
+:root {
+  --page: #f6f8f5;
+  --card: #ffffff;
+  --grid: #7aa588;
+  --grid-soft: #e3eee6;
+  --btn: #f3f5f2;
+  --line: #dde3de;
+  --ink: #1d2520;
+  --muted: #66756b;
+  --red: #c4302a;
+  --red-soft: #fbe9e7;
+  --ok: #2f7a4c;
+  --ok-soft: #e4f2e9;
+  --shadow: 0 6px 28px rgba(60, 110, 80, .14);
+  --serif: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  --hand: "LXGW WenKai TC", "KaiTi", "DFKai-SB", "BiauKai", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #111512; --card: #1a201c; --grid: #4f8463; --grid-soft: #26352b; --btn: #222a25; --line: #2e3a32;
+    --ink: #e5ece7; --muted: #9fb0a5; --red: #ff6f62; --red-soft: #3a1f1c; --ok: #6fcf94; --ok-soft: #1f3528;
+    --shadow: 0 6px 28px rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #111512; --card: #1a201c; --grid: #4f8463; --grid-soft: #26352b; --btn: #222a25; --line: #2e3a32;
+  --ink: #e5ece7; --muted: #9fb0a5; --red: #ff6f62; --red-soft: #3a1f1c; --ok: #6fcf94; --ok-soft: #1f3528;
+  --shadow: 0 6px 28px rgba(0, 0, 0, .4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+html, body { min-height: 100%; }
+body {
+  background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px;
+  display: grid; place-items: start center;
+}
+.card {
+  width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: var(--shadow); padding: 16px 18px 14px; display: grid; gap: 12px; position: relative; overflow: hidden;
+  min-height: 460px; grid-template-rows: auto 1fr auto;
+}
+.bar { display: flex; align-items: center; gap: 8px; }
+.logo { display: flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 500; margin-right: auto; }
+.logo i { width: 24px; height: 24px; border: 1.5px solid var(--red); display: grid; place-items: center; font-style: normal; font-family: var(--serif); font-weight: 700; color: var(--red); font-size: .85rem; border-radius: 3px; }
+.ib { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--grid-soft); color: var(--ok); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.ib svg { width: 16px; height: 16px; }
+.ib:hover { filter: brightness(.96); }
+button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+.stage { display: grid; gap: 10px; align-content: start; position: relative; }
+.prompt { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.prompt b { font-weight: 500; font-size: .7rem; letter-spacing: .1em; color: var(--ok); border: 1px solid var(--grid); border-radius: 3px; padding: 0 5px; }
+.meaning { font-family: var(--serif); font-size: 1rem; background: var(--grid-soft); padding: 8px 12px; border-radius: 8px; }
+.gridwrap { display: flex; justify-content: center; }
+.grid { --c: clamp(24px, 7.2vw, 31px); display: flex; flex-wrap: wrap; border-top: 1px solid var(--grid); border-left: 1px solid var(--grid); width: fit-content; max-width: 100%; }
+.cell { width: var(--c); height: var(--c); border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); display: grid; place-items: center; font-family: var(--serif); font-weight: 500; font-size: calc(var(--c) * .58); position: relative; }
+.cell.blank { background: var(--grid-soft); }
+.cell.blank::after { content: ""; position: absolute; inset: 24%; border-bottom: 2px dashed var(--grid); }
+.cell.filled { color: var(--red); font-family: var(--hand); font-weight: 700; }
+.by { font-family: var(--serif); font-size: .82rem; color: var(--muted); text-align: right; }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--grid); transition: width .3s; }
+.opts { display: grid; gap: 7px; }
+.opt { font: inherit; font-family: var(--serif); font-weight: 500; font-size: .98rem; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); cursor: pointer; text-align: center; overflow-wrap: anywhere; }
+.opt:hover:not(:disabled) { border-color: var(--grid); }
+.opt:disabled { cursor: default; }
+.opt.right { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 700; }
+.opt.wrong { background: var(--red-soft); border-color: var(--red); color: var(--red); text-decoration: line-through; }
+.mark { position: absolute; top: -4px; right: 0; font-family: var(--hand); font-weight: 700; color: var(--red); font-size: 2.6rem; line-height: 1; transform: rotate(-8deg); pointer-events: none; }
+.tip { font-family: var(--hand); color: var(--red); font-size: .95rem; line-height: 1.5; }
+.tip small { font-family: var(--sans); font-size: .72rem; color: var(--muted); letter-spacing: .05em; margin-right: 4px; }
+.next { font: inherit; font-weight: 700; font-size: .9rem; padding: 7px; border-radius: 10px; border: 0; background: var(--ink); color: var(--card); cursor: pointer; }
+.foot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 9px; font-size: .78rem; color: var(--muted); }
+.foot b { color: var(--ok); font-variant-numeric: tabular-nums; font-size: .85rem; }
+
+/* 覆蓋層：設定、名句庫、說明、成績 */
+.layer { position: absolute; inset: 0; background: var(--card); padding: 16px 18px; display: grid; grid-template-rows: auto 1fr; gap: 12px; z-index: 5; }
+.layer header { display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+.layer .body { overflow-y: auto; min-height: 0; display: grid; gap: 14px; align-content: start; padding-right: 2px; }
+.lbl { font-size: .75rem; color: var(--muted); letter-spacing: .1em; margin-bottom: 4px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .chip { font: inherit; font-size: .85rem; padding: 4px 12px; border: 1px solid var(--grid); border-radius: 999px; background: transparent; color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"], .chip[aria-pressed="true"] { background: var(--grid); color: var(--card); font-weight: 700; }
+.chip { font-size: .78rem; padding: 2px 9px; }
+.search { font: inherit; width: 100%; padding: 7px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); }
+.entry { border-left: 3px solid var(--grid); padding: 2px 0 2px 10px; display: grid; gap: 1px; }
+.entry .q { font-family: var(--serif); }
+.entry .q mark { background: none; color: var(--red); font-weight: 700; }
+.entry .s { font-size: .75rem; color: var(--muted); }
+.entry .u { font-family: var(--hand); color: var(--red); font-size: .9rem; }
+.big { font-family: var(--hand); color: var(--red); font-size: 3.6rem; font-weight: 700; text-align: center; line-height: 1.1; transform: rotate(-4deg); }
+.center { text-align: center; }
+.help li { margin-bottom: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .mark, .big { animation: stamp .26s ease-out; }
+  @keyframes stamp { from { transform: rotate(-8deg) scale(1.6); opacity: 0; } }
+}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="bar">
+    <div class="logo"><i>名</i>作文名句</div>
+    <button class="ib" type="button" id="b-lib" aria-label="依題目找句子" title="依題目找句子"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2"/><path d="M19 17v4H6"/></svg></button>
+    <button class="ib" type="button" id="b-help" aria-label="說明" title="說明"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.2 9a3 3 0 1 1 4.1 2.8c-.8.3-1.3 1-1.3 1.9V14"/><path d="M12 18h.01"/></svg></button>
+    <button class="ib" type="button" id="b-set" aria-label="設定" title="設定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  </div>
+  <div class="stage" id="stage" aria-live="polite"></div>
+  <div class="foot"><span>得分</span><b id="score">0 / 0</b></div>
+  <div class="layer" id="layer" hidden></div>
+</div>
+
+<script>
+const TH = {
+  A: '堅持與毅力', B: '學習與思考', C: '珍惜時光', D: '親情', E: '友情與思念', F: '逆境與希望',
+  G: '責任與胸懷', H: '品德修養', I: '豁達與心境', J: '奉獻付出', K: '志向與進取', L: '實踐與行動', M: '換個角度看'
+};
+// [句子, 挖空, 作者, 出處, 適用主題, 等級(1基本/2進階), 寫作用法]
+const RAW = [
+  ['天行健，君子以自強不息。','自強不息','《周易》','〈象傳〉','AK',1,'寫自我要求、不倚賴外力的題目，放在開頭立論。'],
+  ['千里之行，始於足下。','始於足下','老子','《道德經》','LK',1,'寫「從小事做起」「勇敢踏出第一步」的題目。'],
+  ['學而不思則罔，思而不學則殆。','則殆','孔子','《論語‧為政》','B',1,'寫讀書方法、學習與思考的關係，可拆成兩段論述。'],
+  ['業精於勤，荒於嬉；行成於思，毀於隨。','荒於嬉','韓愈','〈進學解〉','AB',2,'寫勤奮與怠惰的對比，正反兩面都能用。'],
+  ['鍥而不舍，金石可鏤。','金石可鏤','荀子','〈勸學〉','A',2,'寫持之以恆、滴水穿石一類的題目。'],
+  ['不積跬步，無以至千里。','跬步','荀子','〈勸學〉','AL',1,'寫累積與基本功，搭配一個具體的小目標例子。'],
+  ['青，取之於藍，而青於藍。','而青於藍','荀子','〈勸學〉','BK',2,'寫超越前人、學生勝過老師，或自我突破。'],
+  ['路漫漫其修遠兮，吾將上下而求索。','上下而求索','屈原','〈離騷〉','AK',2,'寫追求理想、探索未知，語氣莊重，適合結尾。'],
+  ['先天下之憂而憂，後天下之樂而樂。','後天下之樂而樂','范仲淹','〈岳陽樓記〉','G',1,'寫責任感、領導者、服務他人的題目。'],
+  ['不以物喜，不以己悲。','不以己悲','范仲淹','〈岳陽樓記〉','I',2,'寫看淡得失、情緒管理，表現從容的心境。'],
+  ['人生自古誰無死，留取丹心照汗青。','丹心','文天祥','〈過零丁洋〉','GH',1,'寫氣節、堅守原則，語氣強烈，適合收尾。'],
+  ['長風破浪會有時，直掛雲帆濟滄海。','直掛雲帆','李白','〈行路難〉','FK',1,'寫暫時受挫但對未來有信心，常放在結尾。'],
+  ['天生我材必有用，千金散盡還復來。','必有用','李白','〈將進酒〉','K',1,'寫自信、肯定自我價值的題目。'],
+  ['桃花潭水深千尺，不及汪倫送我情。','不及汪倫','李白','〈贈汪倫〉','E',1,'寫朋友的情誼、難忘的送別。'],
+  ['山重水複疑無路，柳暗花明又一村。','柳暗花明','陸游','〈遊山西村〉','FM',1,'寫困境中出現轉機：前段寫困難，後段引出這句。'],
+  ['紙上得來終覺淺，絕知此事要躬行。','躬行','陸游','〈冬夜讀書示子聿〉','LB',1,'寫實踐、做中學，可對照只讀書不動手的例子。'],
+  ['位卑未敢忘憂國。','忘憂國','陸游','〈病起書懷〉','G',2,'寫小人物也能關心社會、盡一份心力。'],
+  ['問渠那得清如許？為有源頭活水來。','源頭活水','朱熹','〈觀書有感〉','B',1,'寫閱讀、持續學習帶來新觀念。'],
+  ['少年易老學難成，一寸光陰不可輕。','不可輕','朱熹','〈偶成〉','CB',1,'寫把握求學時光，常與「光陰似箭」搭配。'],
+  ['不識廬山真面目，只緣身在此山中。','只緣身在此山中','蘇軾','〈題西林壁〉','M',1,'寫換位思考、旁觀者清，適合論說文。'],
+  ['回首向來蕭瑟處，歸去，也無風雨也無晴。','也無風雨也無晴','蘇軾','〈定風波〉','IF',2,'寫走過低潮後的平靜，適合抒情文結尾。'],
+  ['竹杖芒鞋輕勝馬，誰怕？一蓑煙雨任平生。','一蓑煙雨','蘇軾','〈定風波〉','IF',2,'寫面對風雨不慌張的態度，比直接說「我不怕」更有畫面。'],
+  ['人有悲歡離合，月有陰晴圓缺，此事古難全。','陰晴圓缺','蘇軾','〈水調歌頭〉','EI',1,'寫離別，或學著接受人生的不完美。'],
+  ['但願人長久，千里共嬋娟。','千里共嬋娟','蘇軾','〈水調歌頭〉','ED',1,'寫思念遠方的家人朋友，或中秋團圓。'],
+  ['人生如逆旅，我亦是行人。','我亦是行人','蘇軾','〈臨江仙‧送錢穆父〉','I',2,'寫人生的聚散與過程，語氣淡然，適合抒情收尾。'],
+  ['古之立大事者，不惟有超世之才，亦必有堅忍不拔之志。','堅忍不拔','蘇軾','〈晁錯論〉','AK',2,'寫才能與毅力的關係，論說文好用。'],
+  ['會當凌絕頂，一覽眾山小。','一覽眾山小','杜甫','〈望嶽〉','K',1,'寫立定志向、挑戰高峰的題目。'],
+  ['讀書破萬卷，下筆如有神。','下筆如有神','杜甫','〈奉贈韋左丞丈二十二韻〉','B',1,'寫閱讀的累積如何幫助表達與寫作。'],
+  ['落紅不是無情物，化作春泥更護花。','化作春泥','龔自珍','〈己亥雜詩〉','J',2,'寫默默付出，例如老師、志工的奉獻。'],
+  ['春蠶到死絲方盡，蠟炬成灰淚始乾。','蠟炬成灰','李商隱','〈無題〉','JD',1,'原寫相思，作文常借來寫無私奉獻的師長、父母。'],
+  ['海內存知己，天涯若比鄰。','天涯若比鄰','王勃','〈送杜少府之任蜀州〉','E',1,'寫友情、與遠方朋友的聯繫。'],
+  ['獨在異鄉為異客，每逢佳節倍思親。','倍思親','王維','〈九月九日憶山東兄弟〉','DE',1,'寫離家求學、節日想家的心情。'],
+  ['勸君更盡一杯酒，西出陽關無故人。','無故人','王維','〈送元二使安西〉','E',1,'寫畢業、搬家等離別場景。'],
+  ['行到水窮處，坐看雲起時。','坐看雲起時','王維','〈終南別業〉','IF',2,'寫走到絕處時換個心情，常有新的風景。'],
+  ['慈母手中線，遊子身上衣。','遊子身上衣','孟郊','〈遊子吟〉','D',1,'寫母親的照顧，可接一段母親為你做的小事。'],
+  ['誰言寸草心，報得三春暉。','三春暉','孟郊','〈遊子吟〉','D',1,'寫母愛、親恩難報的題目。'],
+  ['樹欲靜而風不止，子欲養而親不待。','親不待','《韓詩外傳》','卷九','DC',1,'寫及時行孝、珍惜和家人相處的時間。'],
+  ['己所不欲，勿施於人。','勿施於人','孔子','《論語‧衛靈公》','HM',1,'寫同理心、待人處事的原則。'],
+  ['工欲善其事，必先利其器。','必先利其器','孔子','《論語‧衛靈公》','L',1,'寫事前準備、找對方法的重要。'],
+  ['人無遠慮，必有近憂。','必有近憂','孔子','《論語‧衛靈公》','GK',1,'寫未雨綢繆、規劃未來。'],
+  ['三人行，必有我師焉。','必有我師','孔子','《論語‧述而》','BH',1,'寫謙虛、向身邊的人學習。'],
+  ['見賢思齊焉，見不賢而內自省也。','見賢思齊','孔子','《論語‧里仁》','BH',1,'寫以人為鏡、自我反省。'],
+  ['知之為知之，不知為不知，是知也。','不知為不知','孔子','《論語‧為政》','BH',2,'寫誠實面對自己的不足、求學態度。'],
+  ['欲速則不達，見小利則大事不成。','欲速則不達','孔子','《論語‧子路》','AM',1,'寫按部就班、別急著看到成果。'],
+  ['生於憂患，死於安樂。','死於安樂','孟子','《孟子‧告子下》','FA',1,'寫危機意識、逆境使人成長。'],
+  ['富貴不能淫，貧賤不能移，威武不能屈。','威武不能屈','孟子','《孟子‧滕文公下》','H',1,'寫人格、堅守原則，排比句式氣勢強。'],
+  ['老吾老以及人之老，幼吾幼以及人之幼。','以及人之幼','孟子','《孟子‧梁惠王上》','GJ',2,'寫關懷社會、推己及人。'],
+  ['上善若水，水善利萬物而不爭。','而不爭','老子','《道德經》','HJ',2,'寫謙遜、柔軟與包容的力量。'],
+  ['吾生也有涯，而知也無涯。','而知也無涯','莊子','〈養生主〉','BC',2,'寫學無止境，或時間有限要懂得取捨。'],
+  ['君子之交淡若水。','淡若水','莊子','〈山木〉','E',2,'寫真正的友誼不靠熱鬧，靠長久。'],
+  ['一年之計，莫如樹穀；十年之計，莫如樹木；終身之計，莫如樹人。','莫如樹人','《管子》','〈權修〉','GB',2,'寫教育的重要、老師的影響。'],
+  ['鞠躬盡瘁，死而後已。','死而後已','諸葛亮','〈後出師表〉','GJ',1,'寫盡忠職守、全力以赴。'],
+  ['非淡泊無以明志，非寧靜無以致遠。','無以致遠','諸葛亮','〈誡子書〉','IK',1,'寫專注、不被外界干擾，才能走得遠。'],
+  ['靜以修身，儉以養德。','儉以養德','諸葛亮','〈誡子書〉','H',2,'寫節儉、自律的品格。'],
+  ['勿以惡小而為之，勿以善小而不為。','勿以善小','劉備','《三國志》裴松之注','H',1,'寫日常小善，品格從小事養成。'],
+  ['有志者事竟成。','事竟成','光武帝劉秀','《後漢書‧耿弇傳》','AK',1,'寫立志與堅持，短句好記，適合當主題句。'],
+  ['寶劍鋒從磨礪出，梅花香自苦寒來。','苦寒','《警世賢文》','勤奮篇','AF',1,'寫磨練、苦盡甘來，常用於開頭破題。'],
+  ['少壯不努力，老大徒傷悲。','徒傷悲','漢樂府','〈長歌行〉','C',1,'寫把握青春、及時努力。'],
+  ['盛年不重來，一日難再晨。','一日難再晨','陶淵明','〈雜詩〉','C',2,'寫珍惜時間，比「少壯不努力」少見，較有新意。'],
+  ['採菊東籬下，悠然見南山。','悠然見南山','陶淵明','〈飲酒〉其五','I',1,'寫閒適、慢活、親近自然。'],
+  ['黑髮不知勤學早，白首方悔讀書遲。','白首方悔','顏真卿','〈勸學〉','CB',1,'寫把握讀書時光，前後對比很鮮明。'],
+  ['莫等閒，白了少年頭，空悲切。','白了少年頭','岳飛','〈滿江紅〉','C',1,'寫珍惜青春、不要虛度。'],
+  ['衣帶漸寬終不悔，為伊消得人憔悴。','終不悔','柳永','〈蝶戀花〉','AK',2,'王國維借來說成大事的第二境界，寫為目標全心投入。'],
+  ['眾裡尋他千百度，驀然回首，那人卻在，燈火闌珊處。','燈火闌珊處','辛棄疾','〈青玉案‧元夕〉','AK',2,'王國維說的第三境界，寫長期努力後豁然開朗。'],
+  ['沉舟側畔千帆過，病樹前頭萬木春。','萬木春','劉禹錫','〈酬樂天揚州初逢席上見贈〉','FI',2,'寫走出挫折、看見新生的力量。'],
+  ['欲窮千里目，更上一層樓。','更上一層樓','王之渙','〈登鸛雀樓〉','K',1,'寫不斷進步、追求更高的目標。'],
+  ['野火燒不盡，春風吹又生。','春風吹又生','白居易','〈賦得古原草送別〉','AF',1,'寫生命的韌性、打不倒的意志。'],
+  ['千磨萬擊還堅勁，任爾東西南北風。','還堅勁','鄭燮','〈竹石〉','AF',1,'寫在壓力與批評中站穩腳步。'],
+  ['粉身碎骨渾不怕，要留清白在人間。','要留清白','于謙','〈石灰吟〉','H',1,'寫正直、不同流合汙。'],
+  ['天下興亡，匹夫有責。','匹夫有責','顧炎武','《日知錄》（梁啟超概括）','G',1,'寫公民責任、關心公共事務。'],
+  ['其實地上本沒有路，走的人多了，也便成了路。','也便成了路','魯迅','〈故鄉〉','LK',1,'寫開創、勇於走別人沒走過的路。'],
+  ['黑夜給了我黑色的眼睛，我卻用它尋找光明。','尋找光明','顧城','〈一代人〉','F',1,'寫在困境中保持希望，現代詩句，放結尾很有力。'],
+  ['知識就是力量。','力量','培根','《神聖沉思》','B',1,'寫讀書的意義，句子短，適合當段落主題句。'],
+  ['天才是百分之一的靈感，加上百分之九十九的汗水。','汗水','愛迪生','訪談語錄','AL',1,'寫努力勝過天分，常見但好用，記得搭配實例。'],
+  ['生活中不是缺少美，而是缺少發現美的眼睛。','發現美的眼睛','羅丹','《羅丹藝術論》','M',1,'寫觀察生活、從平凡中看見美。'],
+  ['如果冬天來了，春天還會遠嗎？','春天還會遠嗎','雪萊','〈西風頌〉','F',1,'寫低潮終會過去，用問句收尾餘韻好。'],
+  ['未經省察的人生不值得活。','省察','蘇格拉底','柏拉圖《申辯篇》','BM',2,'寫自我反省、思考人生意義。'],
+  ['如果你因失去了太陽而流淚，那麼你也將失去群星。','群星','泰戈爾','《漂鳥集》','FI',2,'寫放下遺憾、把握眼前。'],
+  ['人是一根會思考的蘆葦。','蘆葦','巴斯卡','《思想錄》','BM',2,'寫人的渺小與思考的價值。'],
+  ['我們都在陰溝裡，但仍有人仰望星空。','仰望星空','王爾德','《溫夫人的扇子》','FK',2,'寫身處困境仍懷抱理想。'],
+  ['人生不是一支短短的蠟燭，而是一支由我們暫時拿著的火炬。','火炬','蕭伯納','演講語錄','JG',2,'寫傳承、把熱情交給下一個人。']
+];
+// [成語, 意思, 適用主題, 等級, 例句]
+const ID_RAW = [
+  ['持之以恆','長久堅持下去，不半途而廢。','A',1,'學琴沒有捷徑，只能持之以恆地練習。'],
+  ['水滴石穿','微小的力量持續累積，也能成就難事。','A',1,'每天背十個單字看似不多，水滴石穿，一年後就是三千多個。'],
+  ['臥薪嘗膽','刻苦自勵，立志雪恥或達成目標。','AF',1,'段考失利後，他臥薪嘗膽，每天提早一小時到校自習。'],
+  ['破釜沉舟','下定決心，不留退路，全力以赴。','AK',1,'她以破釜沉舟的決心報考音樂班。'],
+  ['舉一反三','從一件事推知其他相類似的事。','B',1,'學數學要能舉一反三，不能只背題型。'],
+  ['溫故知新','複習學過的東西，而得到新的體會。','B',1,'考前重讀筆記，常能溫故知新。'],
+  ['學以致用','把學到的知識用在實際生活中。','BL',1,'學了急救課程，他在公園學以致用救了一位老人。'],
+  ['觸類旁通','掌握某一事物的道理，進而了解同類的事物。','B',2,'讀通了一首詩的寫法，其他詩也就觸類旁通。'],
+  ['光陰似箭','時間過得像飛箭一樣快。','C',1,'光陰似箭，轉眼國中三年就要結束了。'],
+  ['稍縱即逝','稍一放鬆就消失，形容機會或時間難得。','C',1,'機會稍縱即逝，準備好的人才抓得住。'],
+  ['只爭朝夕','抓緊時間，珍惜每一刻。','C',2,'離會考只剩百日，大家只爭朝夕地衝刺。'],
+  ['舐犢情深','比喻父母疼愛子女的深厚感情。','D',2,'父親冒雨送傘的身影，是舐犢情深最好的寫照。'],
+  ['寸草春暉','比喻父母恩情深重，子女難以報答。','D',2,'寸草春暉，母親的付出我一輩子也還不完。'],
+  ['反哺之情','比喻子女長大後奉養父母的孝心。','D',1,'他放棄外地工作回家照顧父親，是出於反哺之情。'],
+  ['莫逆之交','彼此情投意合、毫無隔閡的朋友。','E',1,'我們從小學就是莫逆之交。'],
+  ['肝膽相照','比喻彼此真誠相待。','E',1,'真正的朋友會肝膽相照，不只陪你玩樂。'],
+  ['患難與共','共同承擔危險和困難。','E',1,'那次颱風夜，鄰居之間患難與共。'],
+  ['依依不捨','留戀而捨不得分離。','E',1,'畢業典禮後，同學們依依不捨地合照。'],
+  ['否極泰來','壞運到了盡頭，好運就會來臨。','F',1,'經歷一連串挫折後，他終於否極泰來。'],
+  ['塞翁失馬','一時的損失，可能反而帶來好處。','FM',1,'沒考上第一志願，塞翁失馬，我卻在新學校找到熱愛的社團。'],
+  ['苦盡甘來','艱苦的日子結束，美好的日子到來。','F',1,'練了三年，球隊終於苦盡甘來奪下冠軍。'],
+  ['絕處逢生','在毫無出路的情況下找到生路。','F',2,'比賽最後一刻的逆轉，讓我們絕處逢生。'],
+  ['雪中送炭','在別人急需時給予幫助。','J',1,'他在我最低潮時的一句鼓勵，有如雪中送炭。'],
+  ['捨己為人','犧牲自己的利益去幫助別人。','J',1,'消防員捨己為人的精神令人敬佩。'],
+  ['任重道遠','責任重大，要走的路還很長。','G',1,'環境保護任重道遠，需要每個人一起努力。'],
+  ['當仁不讓','遇到應該做的事，主動承擔不推辭。','G',1,'班上沒人想當股長，她當仁不讓地舉手。'],
+  ['光明磊落','胸懷坦白，行事正大光明。','H',1,'做人要光明磊落，不必害怕別人檢視。'],
+  ['表裡如一','外在言行和內心想法一致。','H',1,'他在老師面前和私底下表裡如一，大家都信任他。'],
+  ['謙沖自牧','以謙虛的態度修養自己。','H',2,'他成績頂尖卻謙沖自牧，從不炫耀。'],
+  ['隨遇而安','能適應各種環境，安心自在。','I',1,'搬到鄉下後，她隨遇而安，很快交到新朋友。'],
+  ['寵辱不驚','不因得失而動心，形容心境平和。','I',2,'面對讚美與批評，他都寵辱不驚。'],
+  ['心曠神怡','心情舒暢，精神愉快。','I',1,'登上山頂，看著雲海，令人心曠神怡。'],
+  ['鵬程萬里','比喻前途遠大，不可限量。','K',1,'祝畢業的學長姐鵬程萬里。'],
+  ['精益求精','已經很好了，還要追求更好。','K',1,'師傅做麵包精益求精，連發酵時間都算到分鐘。'],
+  ['百尺竿頭','比喻已有很高成就，仍要更進一步。','K',2,'拿到冠軍後，她百尺竿頭，更進一步挑戰全國賽。'],
+  ['身體力行','親身努力實行。','L',1,'老師不只講環保，也身體力行自備餐具。'],
+  ['知行合一','知道的道理和行動要一致。','L',2,'讀了再多道理，做不到就不算知行合一。'],
+  ['設身處地','站在別人的處境去設想。','M',1,'吵架時若能設身處地想一想，就不會口不擇言。'],
+  ['推己及人','用自己的心意去推想別人的心意。','MG',1,'推己及人，我討厭被嘲笑，也就不該嘲笑別人。'],
+  ['當局者迷','身在其中的人反而看不清事情的真相。','M',1,'當局者迷，朋友一句提醒才讓我看清問題。'],
+  ['見微知著','從細微的跡象看出事物的發展。','M',2,'好的觀察者能見微知著，從一個眼神讀出心事。']
+];
+
+const QS = RAW.map(([t,b,a,w,th,l,u]) => ({t,b,a,w,th:[...th],l,u}));
+const IDS = ID_RAW.map(([w,m,th,l,ex]) => ({w,m,th:[...th],l,ex}));
+const TYPES = { mix: '混合', fill: '補字', author: '作者', theme: '題目', idiom: '成語' };
+const PROMPT = { fill: ['補字', '方格裡缺了哪幾個字？'], author: ['作者', '這句話出自誰？'], theme: ['題目', '最適合用在哪類作文？'], idiom: ['成語', '哪個成語是這個意思？'] };
+
+let cfg = { type: 'mix', level: 1 };
+try { Object.assign(cfg, JSON.parse(localStorage.getItem('quote-card-cfg') || '{}')); } catch (e) {}
+let st;
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const themeNames = th => th.map(k => TH[k]).join('、');
+
+function makeQuestion(q, type) {
+  const n = cfg.level === 1 ? 3 : 4;
+  let answer, pool;
+  if (type === 'idiom') {
+    answer = q.w;
+    pool = shuffle(IDS.filter(x => x !== q && !x.th.some(k => q.th.includes(k))).map(x => x.w));
+  } else if (type === 'fill') {
+    answer = q.b;
+    const others = QS.filter(x => x !== q).map(x => x.b);
+    pool = [...new Set([...shuffle(others.filter(b => b.length === q.b.length)), ...shuffle(others)])].filter(b => b !== answer);
+  } else if (type === 'author') {
+    answer = q.a;
+    pool = shuffle([...new Set(QS.map(x => x.a))].filter(a => a !== q.a));
+  } else {
+    answer = TH[q.th[Math.random() * q.th.length | 0]];
+    pool = shuffle(Object.keys(TH).filter(k => !q.th.includes(k)).map(k => TH[k]));
+  }
+  return { q, type, opts: shuffle([answer, ...pool.slice(0, n - 1)]), answer, picked: null };
+}
+
+function start() {
+  const qs = QS.filter(q => q.l <= cfg.level), ids = IDS.filter(q => q.l <= cfg.level);
+  const three = ['fill', 'author', 'theme'];
+  let items;
+  if (cfg.type === 'mix') items = [...qs.map(q => makeQuestion(q, three[Math.random() * 3 | 0])), ...ids.map(q => makeQuestion(q, 'idiom'))];
+  else if (cfg.type === 'idiom') items = ids.map(q => makeQuestion(q, 'idiom'));
+  else items = qs.map(q => makeQuestion(q, cfg.type));
+  st = { i: 0, right: 0, items: shuffle(items) };
+  closeLayer();
+  render();
+}
+
+function cells(it) {
+  const done = it.picked !== null;
+  const cell = (ch, blank) => !blank ? `<div class="cell">${esc(ch)}</div>` : done ? `<div class="cell filled">${esc(ch)}</div>` : `<div class="cell blank"></div>`;
+  if (it.type === 'idiom') return [...it.q.w].map(ch => cell(ch, true)).join('');
+  const at = it.type === 'fill' ? it.q.t.indexOf(it.q.b) : -1;
+  return [...it.q.t].map((ch, i) => cell(ch, at >= 0 && i >= at && i < at + it.q.b.length)).join('');
+}
+
+function render() {
+  $('score').textContent = `${st.right} / ${st.items.length}`;
+  if (st.i >= st.items.length) return showResult();
+  const it = st.items[st.i], done = it.picked !== null, isId = it.type === 'idiom';
+  const [tag, prompt] = PROMPT[it.type];
+  const by = !isId && (done || it.type !== 'author') ? `<div class="by">—— ${esc(it.q.a)} ${esc(it.q.w)}</div>` : '';
+  $('stage').innerHTML = `
+    ${done ? `<div class="mark">${it.picked === it.answer ? '○' : '✗'}</div>` : ''}
+    <div class="prompt"><b>${tag}</b>${prompt}</div>
+    ${isId ? `<div class="meaning">${esc(it.q.m)}</div>` : ''}
+    <div class="gridwrap"><div class="grid">${cells(it)}</div></div>
+    ${by}
+    <div class="progress"><span style="width:${(st.i + (done ? 1 : 0)) / st.items.length * 100}%"></span></div>
+    <div class="opts">${it.opts.map((o, k) => {
+      const cls = done && o === it.answer ? 'right' : done && o === it.picked ? 'wrong' : '';
+      return `<button type="button" class="opt ${cls}" id="opt-${k}" data-k="${k}" ${done ? 'disabled' : ''}>${esc(o)}</button>`;
+    }).join('')}</div>
+    ${done ? `<div class="tip"><small>${isId ? '例句' : '寫作用法'}</small>${esc(isId ? it.q.ex : it.q.u)}</div>
+      <button type="button" class="next" id="next">下一題</button>` : ''}`;
+  $('stage').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => pick(+b.dataset.k)));
+  const nx = $('next');
+  if (nx) { nx.addEventListener('click', next); nx.focus({ preventScroll: true }); }
+}
+
+function pick(k) {
+  const it = st.items[st.i];
+  if (!it || it.picked !== null || !it.opts[k] || !$('layer').hidden) return;
+  it.picked = it.opts[k];
+  if (it.picked === it.answer) st.right++;
+  render();
+}
+function next() { st.i++; render(); }
+
+function openLayer(title, html, onBind) {
+  const L = $('layer');
+  L.innerHTML = `<header><span>${title}</span><button class="ib" type="button" id="b-close" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header><div class="body">${html}</div>`;
+  L.hidden = false;
+  $('b-close').addEventListener('click', closeLayer);
+  onBind && onBind(L);
+}
+function closeLayer() { $('layer').hidden = true; }
+
+function showSettings() {
+  const seg = (key, map) => `<div class="seg" data-key="${key}">${Object.entries(map).map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${String(cfg[key]) === v}">${n}</button>`).join('')}</div>`;
+  openLayer('設定', `
+    <div><div class="lbl">題型</div>${seg('type', TYPES)}</div>
+    <div><div class="lbl">難度</div>${seg('level', { 1: '基本（三選一）', 2: '進階（四選一）' })}</div>
+    <p style="margin:0;color:var(--muted);font-size:.82rem">目前收錄 ${QS.length} 句名句、${IDS.length} 個成語。改了設定會從頭開始。</p>
+    <button type="button" class="next" id="restart">重新開始</button>`, L => {
+    L.querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      cfg[s.dataset.key] = s.dataset.key === 'level' ? +b.dataset.v : b.dataset.v;
+      try { localStorage.setItem('quote-card-cfg', JSON.stringify(cfg)); } catch (err) {}
+      start();
+    }));
+    $('restart').addEventListener('click', start);
+  });
+}
+
+let libTheme = 'all';
+function showLib() {
+  openLayer('依題目找句子', `
+    <input class="search" id="lib-q" type="search" placeholder="搜尋：母親、蘇軾、堅持…">
+    <div class="seg" id="chips"></div>
+    <div id="lib-list" style="display:grid;gap:10px"></div>`, () => {
+    const draw = () => {
+      $('chips').innerHTML = [['all', '全部'], ...Object.entries(TH)].map(([k, n]) => `<button type="button" class="chip" data-k="${k}" aria-pressed="${k === libTheme}">${n}</button>`).join('');
+      const term = $('lib-q').value.trim();
+      const okT = q => libTheme === 'all' || q.th.includes(libTheme);
+      const qs = QS.filter(q => okT(q) && (!term || (q.t + q.a + q.w + q.u).includes(term)));
+      const ids = IDS.filter(q => okT(q) && (!term || (q.w + q.m + q.ex).includes(term)));
+      $('lib-list').innerHTML = [
+        ...qs.map(q => `<div class="entry"><div class="q">${esc(q.t)}</div><div class="s">${esc(q.a)} ${esc(q.w)}｜${themeNames(q.th)}</div><div class="u">${esc(q.u)}</div></div>`),
+        ...ids.map(q => `<div class="entry"><div class="q"><mark>${esc(q.w)}</mark>　${esc(q.m)}</div><div class="s">成語｜${themeNames(q.th)}</div><div class="u">例：${esc(q.ex)}</div></div>`)
+      ].join('') || `<p class="center" style="color:var(--muted)">找不到符合的句子</p>`;
+    };
+    $('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; libTheme = b.dataset.k; draw(); });
+    $('lib-q').addEventListener('input', draw);
+    draw();
+  });
+}
+
+function showHelp() {
+  openLayer('怎麼玩', `<ul class="help" style="margin:0;padding-left:1.2em">
+    <li><b>補字</b>：把名句缺的字選出來。</li>
+    <li><b>作者</b>：選出這句話是誰說的。</li>
+    <li><b>題目</b>：選出這句最適合寫進哪一類作文。</li>
+    <li><b>成語</b>：看意思，選出對的成語。</li>
+    <li>答完會顯示寫作用法或例句，記下來就能用。</li>
+    <li>右上的書本可以依作文題目查句子，齒輪可以換題型和難度。</li>
+    <li>鍵盤：1–4 作答，Enter 下一題。</li></ul>`);
+}
+
+function showResult() {
+  const pct = Math.round(st.right / st.items.length * 100);
+  const missed = st.items.filter(x => x.picked !== x.answer);
+  openLayer('成績', `
+    <div class="big">${pct}<small style="font-size:1.3rem">分</small></div>
+    <p class="center" style="margin:0;color:var(--muted)">${st.items.length} 題答對 ${st.right} 題</p>
+    ${missed.length ? `<div class="lbl">要再背一次的</div>${missed.map(x => x.type === 'idiom'
+      ? `<div class="entry"><div class="q"><mark>${esc(x.q.w)}</mark>　${esc(x.q.m)}</div><div class="u">例：${esc(x.q.ex)}</div></div>`
+      : `<div class="entry"><div class="q">${esc(x.q.t)}</div><div class="s">${esc(x.q.a)} ${esc(x.q.w)}</div></div>`).join('')}` : ''}
+    <button type="button" class="next" id="again">再玩一次</button>`, () => $('again').addEventListener('click', start));
+}
+
+$('b-set').addEventListener('click', showSettings);
+$('b-lib').addEventListener('click', showLib);
+$('b-help').addEventListener('click', showHelp);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') return closeLayer();
+  if (!$('layer').hidden || (e.target.matches && e.target.matches('input'))) return;
+  if (/^[1-4]$/.test(e.key)) pick(+e.key - 1);
+  else if (e.key === 'Enter' && st.items[st.i] && st.items[st.i].picked !== null) { e.preventDefault(); next(); }
+});
+
+start();
+</script>
+
+</body>
+</html>
