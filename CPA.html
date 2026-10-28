@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>會計師考試小卡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=LXGW+WenKai+TC:wght@700&display=swap">
+<style>
+/* 工作底稿小卡：題目像底稿上的一列，答對打紅色勾稽符號；可嵌進 Notion */
+:root {
+  --page: #f5f7f9;
+  --card: #ffffff;
+  --accent: #2f6690;
+  --accent-soft: #e4eef6;
+  --btn: #f3f5f7;
+  --line: #dde3e9;
+  --ink: #1b232b;
+  --muted: #64717d;
+  --red: #c4302a;
+  --red-soft: #fbe9e7;
+  --ok: #2f7a4c;
+  --ok-soft: #e4f2e9;
+  --shadow: 0 6px 28px rgba(40, 80, 120, .14);
+  --serif: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  --hand: "LXGW WenKai TC", "KaiTi", "DFKai-SB", "BiauKai", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #10141a; --card: #19202a; --accent: #7fb2dc; --accent-soft: #22303f; --btn: #212a35; --line: #2d3946;
+    --ink: #e4eaf0; --muted: #9eabb8; --red: #ff6f62; --red-soft: #3a1f1c; --ok: #6fcf94; --ok-soft: #1f3528;
+    --shadow: 0 6px 28px rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #10141a; --card: #19202a; --accent: #7fb2dc; --accent-soft: #22303f; --btn: #212a35; --line: #2d3946;
+  --ink: #e4eaf0; --muted: #9eabb8; --red: #ff6f62; --red-soft: #3a1f1c; --ok: #6fcf94; --ok-soft: #1f3528;
+  --shadow: 0 6px 28px rgba(0, 0, 0, .4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px;
+  display: grid; place-items: start center;
+}
+.card {
+  width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: var(--shadow); padding: 16px 18px 14px; display: grid; gap: 12px; position: relative; overflow: hidden;
+  min-height: 480px; grid-template-rows: auto 1fr auto;
+}
+.bar { display: flex; align-items: center; gap: 8px; }
+.logo { display: flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 500; margin-right: auto; }
+.logo i { width: 24px; height: 24px; border: 1.5px solid var(--accent); display: grid; place-items: center; font-style: normal; font-family: var(--serif); font-weight: 700; color: var(--accent); font-size: .85rem; border-radius: 3px; }
+.ib { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.ib svg { width: 16px; height: 16px; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+.stage { display: grid; gap: 10px; align-content: start; position: relative; }
+.prompt { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.prompt b { font-weight: 500; font-size: .7rem; letter-spacing: .1em; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 5px; }
+.q {
+  font-family: var(--serif); font-weight: 500; font-size: 1.04rem; line-height: 1.65; padding: 10px 12px 10px 14px;
+  border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; min-height: 68px;
+}
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.opts { display: grid; gap: 7px; }
+.opt { font: inherit; font-size: .93rem; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); cursor: pointer; text-align: left; overflow-wrap: anywhere; display: flex; gap: 8px; }
+.opt kbd { font-family: var(--sans); font-size: .7rem; color: var(--muted); }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt:disabled { cursor: default; }
+.opt.right { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 700; }
+.opt.wrong { background: var(--red-soft); border-color: var(--red); color: var(--red); text-decoration: line-through; }
+.mark { position: absolute; top: -6px; right: 0; font-family: var(--hand); font-weight: 700; color: var(--red); font-size: 2.6rem; line-height: 1; transform: rotate(-8deg); pointer-events: none; }
+.ex { font-size: .88rem; line-height: 1.6; color: var(--ink); border-top: 1px dashed var(--line); padding-top: 8px; }
+.ex small { font-size: .72rem; color: var(--red); letter-spacing: .08em; margin-right: 4px; font-weight: 700; }
+.next { font: inherit; font-weight: 700; font-size: .9rem; padding: 7px; border-radius: 10px; border: 0; background: var(--ink); color: var(--card); cursor: pointer; }
+.foot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 9px; font-size: .78rem; color: var(--muted); }
+.foot b { color: var(--accent); font-variant-numeric: tabular-nums; font-size: .85rem; }
+
+.layer { position: absolute; inset: 0; background: var(--card); padding: 16px 18px; display: grid; grid-template-rows: auto 1fr; gap: 12px; z-index: 5; }
+.layer header { display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+.layer .body { overflow-y: auto; min-height: 0; display: grid; gap: 14px; align-content: start; padding-right: 2px; }
+.lbl { font-size: .75rem; color: var(--muted); letter-spacing: .1em; margin-bottom: 4px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: inherit; font-size: .84rem; padding: 4px 12px; border: 1px solid var(--accent); border-radius: 999px; background: transparent; color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--card); font-weight: 700; }
+.search { font: inherit; width: 100%; padding: 7px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); }
+.entry { border-left: 3px solid var(--accent); padding: 2px 0 2px 10px; display: grid; gap: 2px; }
+.entry .eq { font-family: var(--serif); }
+.entry .ea { color: var(--ok); font-weight: 700; font-size: .9rem; }
+.entry .ee { font-size: .8rem; color: var(--muted); }
+.entry.miss { border-left-color: var(--red); }
+.big { font-family: var(--hand); color: var(--red); font-size: 3.6rem; font-weight: 700; text-align: center; line-height: 1.1; transform: rotate(-4deg); }
+.center { text-align: center; }
+.note { font-size: .75rem; color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .mark, .big { animation: stamp .26s ease-out; }
+  @keyframes stamp { from { transform: rotate(-8deg) scale(1.6); opacity: 0; } }
+}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="bar">
+    <div class="logo"><i>會</i>會計師考試小卡</div>
+    <button class="ib" type="button" id="b-lib" aria-label="重點整理" title="重點整理"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2"/><path d="M19 17v4H6"/></svg></button>
+    <button class="ib" type="button" id="b-set" aria-label="設定" title="設定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg></button>
+  </div>
+  <div class="stage" id="stage" aria-live="polite"></div>
+  <div class="foot"><span id="foot-l">得分</span><b id="score">0 / 0</b></div>
+  <div class="layer" id="layer" hidden></div>
+</div>
+
+<script>
+const SUBJ = { audit: '審計學', acct: '中級／高等會計', cost: '成本與管理會計', tax: '稅務法規', law: '商事法' };
+// [科目, 題目, 正解, [錯誤選項×3], 解析]
+const BANK = [
+  ['audit','財務報表存在不實表達，影響重大且廣泛，查核人員應出具？','否定意見',['保留意見','無法表示意見','無保留意見加強調事項段'],'不實表達：重大但不廣泛 → 保留；重大且廣泛 → 否定。'],
+  ['audit','無法取得足夠及適切之查核證據，可能影響重大但不廣泛，應出具？','保留意見',['否定意見','無法表示意見','無保留意見加其他事項段'],'範圍受限：重大但不廣泛 → 保留；重大且廣泛 → 無法表示。'],
+  ['audit','無法取得足夠及適切之查核證據，可能影響重大且廣泛，應出具？','無法表示意見',['否定意見','保留意見','無保留意見加其他事項段'],'範圍受限且重大廣泛時無從判斷，出具無法表示意見。'],
+  ['audit','繼續經營存在重大不確定性，且財報已適當揭露，查核報告應如何處理？','無保留意見，另加「繼續經營有關之重大不確定性」段',['保留意見','否定意見','無保留意見，於強調事項段說明'],'依審計準則570號，揭露適當時以獨立段落說明，不放在強調事項段；揭露不適當才修正意見。'],
+  ['audit','觀察客戶存貨盤點，主要測試哪一項聲明？','存在',['完整性','權利與義務','分類'],'實地觀察證明帳上存貨真的存在。'],
+  ['audit','由原始憑證追查至帳簿記錄（tracing），主要測試？','完整性',['存在或發生','評價與分攤','表達'],'方向從憑證到帳，看有沒有漏記。'],
+  ['audit','由帳簿記錄抽查至原始憑證（vouching），主要測試？','存在或發生',['完整性','截止','分類'],'方向從帳到憑證，看帳上記錄是否真實發生。'],
+  ['audit','檢查期後付款以搜尋未入帳負債，主要測試？','完整性',['存在','評價與分攤','發生'],'負債最怕少列，搜尋未入帳負債就是測完整性。'],
+  ['audit','評估應收帳款備抵損失是否足夠，主要測試？','評價與分攤',['存在','完整性','權利與義務'],'金額是否以適當金額表達屬評價。'],
+  ['audit','關鍵查核事項（KAM）規範於哪一號審計準則？','審計準則第701號',['審計準則第700號','審計準則第705號','審計準則第706號'],'700 查核意見；701 關鍵查核事項；705 修正式意見；706 強調事項及其他事項。'],
+  ['audit','函證規範於哪一號審計準則？','審計準則第505號',['審計準則第500號','審計準則第520號','審計準則第530號'],'500 查核證據；505 外部函證；520 分析性程序；530 抽樣。'],
+  ['audit','期後事項規範於哪一號審計準則？','審計準則第560號',['審計準則第570號','審計準則第580號','審計準則第540號'],'560 期後事項；570 繼續經營；580 書面聲明；540 會計估計。'],
+  ['audit','重大性的決定與運用規範於哪一號審計準則？','審計準則第320號',['審計準則第315號','審計準則第330號','審計準則第450號'],'315 風險評估；320 重大性；330 風險回應；450 不實表達評估。'],
+  ['audit','查核人員對舞弊之責任規範於哪一號審計準則？','審計準則第240號',['審計準則第250號','審計準則第260號','審計準則第265號'],'240 舞弊；250 法令遵循；260 與治理單位溝通；265 內控缺失溝通。'],
+  ['audit','審計風險固定時，重大不實表達風險越高，可接受的偵查風險應如何？','越低',['越高','不變','與重大不實表達風險無關'],'審計風險 ＝ 重大不實表達風險 × 偵查風險，兩者反向。偵查風險越低，證實程序要做得越多。'],
+
+  ['acct','客戶合約收入的認列，適用哪號公報？','IFRS 15',['IFRS 9','IFRS 16','IAS 37'],'IFRS 15 五步驟：辨認合約 → 履約義務 → 交易價格 → 分攤 → 滿足時認列。'],
+  ['acct','承租人租賃會計，適用哪號公報？','IFRS 16',['IFRS 15','IAS 16','IAS 40'],'承租人原則上認列使用權資產與租賃負債，短期及低價值租賃可豁免。'],
+  ['acct','資產減損，適用哪號公報？','IAS 36',['IAS 16','IAS 38','IFRS 9'],'可回收金額 ＝ 公允價值減處分成本與使用價值，取高者。'],
+  ['acct','負債準備、或有負債及或有資產，適用哪號公報？','IAS 37',['IAS 19','IAS 12','IAS 10'],'很有可能流出且能可靠估計 → 認列負債準備。'],
+  ['acct','每股盈餘，適用哪號公報？','IAS 33',['IAS 32','IAS 24','IAS 34'],'32 金融工具表達；33 每股盈餘；24 關係人；34 期中報導。'],
+  ['acct','投資性不動產，適用哪號公報？','IAS 40',['IAS 16','IAS 2','IFRS 5'],'可選成本模式或公允價值模式；公允價值模式變動列入損益。'],
+  ['acct','現金流量表中，購買機器設備支付的現金屬於？','投資活動',['營業活動','籌資活動','不影響現金流量'],'取得或處分長期資產屬投資活動。'],
+  ['acct','現金流量表中，買回庫藏股支付的現金屬於？','籌資活動',['投資活動','營業活動','不影響現金流量'],'與業主之間的權益交易屬籌資活動。'],
+  ['acct','確定福利計畫的再衡量數應如何認列？','其他綜合損益，後續不重分類至損益',['其他綜合損益，後續重分類至損益','本期損益','不認列，僅附註揭露'],'IAS 19：再衡量數列 OCI，且永不重分類。'],
+  ['acct','透過其他綜合損益按公允價值衡量（FVOCI）的債務工具，評價損益如何處理？','列其他綜合損益，除列時重分類至損益',['列其他綜合損益，除列時不重分類','列本期損益','不認列'],'FVOCI 債務工具可重分類；FVOCI 權益工具則不可重分類。'],
+  ['acct','選擇 FVOCI 的權益工具投資，處分時累積的評價損益如何處理？','不重分類至損益，可轉入保留盈餘',['重分類至損益','於處分當期一次認列為營業外收入','沖減投資成本'],'權益工具指定 FVOCI 不得回收至損益。'],
+  ['acct','會計估計變動應如何處理？','推延適用於當期及未來期間',['追溯適用並重編比較報表','調整期初保留盈餘','僅附註揭露即可'],'IAS 8：估計變動推延適用；政策變動與錯誤更正則追溯。'],
+  ['acct','發現前期重大錯誤，應如何處理？','追溯重編',['推延適用','列入本期損益','僅附註揭露即可'],'更正比較期間金額，並調整最早表達期間的期初餘額。'],
+  ['acct','收到客戶預付貨款（尚未移轉商品），分錄為？','借：現金／貸：合約負債',['借：現金／貸：銷貨收入','借：應收帳款／貸：合約負債','借：合約負債／貸：現金'],'履約義務尚未滿足，先列合約負債，交貨時才轉列收入。'],
+
+  ['cost','邊際貢獻等於？','銷貨收入 − 變動成本',['銷貨收入 − 銷貨成本','銷貨收入 − 固定成本','營業淨利 + 變動成本'],'銷貨收入 − 銷貨成本是毛利，不是邊際貢獻。'],
+  ['cost','損益兩平銷售「量」的公式？','固定成本 ÷ 單位邊際貢獻',['固定成本 ÷ 單位售價','固定成本 ÷ 邊際貢獻率','變動成本 ÷ 單位邊際貢獻'],'除以邊際貢獻率得到的是損益兩平銷售「額」。'],
+  ['cost','營運槓桿度（DOL）的公式？','邊際貢獻 ÷ 營業淨利',['營業淨利 ÷ 邊際貢獻','固定成本 ÷ 變動成本','銷貨收入 ÷ 營業淨利'],'DOL 越大，銷貨變動對淨利的影響越大。'],
+  ['cost','安全邊際的定義？','預計（實際）銷貨 − 損益兩平銷貨',['損益兩平銷貨 − 固定成本','邊際貢獻 − 固定成本','銷貨收入 − 變動成本'],'安全邊際率 ＝ 安全邊際 ÷ 銷貨。'],
+  ['cost','直接材料價格差異的公式？','（實際價格 − 標準價格）× 實際數量',['（實際價格 − 標準價格）× 標準數量','（實際數量 − 標準數量）× 標準價格','（實際數量 − 標準數量）× 實際價格'],'價格差異乘實際數量；數量差異乘標準價格。'],
+  ['cost','實際購買材料 1,000 公斤，每公斤 12 元；標準每公斤 10 元。價格差異為？','2,000 元不利',['2,000 元有利','1,000 元不利','12,000 元不利'],'（12 − 10）× 1,000 ＝ 2,000，實際價格高於標準，屬不利差異。'],
+  ['cost','單位售價 50 元、單位變動成本 30 元、固定成本 40,000 元，損益兩平銷售量為？','2,000 單位',['800 單位','1,333 單位','4,000 單位'],'40,000 ÷（50 − 30）＝ 2,000。'],
+  ['cost','剩餘利益（RI）的公式？','營業淨利 − 投資額 × 最低要求報酬率',['營業淨利 ÷ 投資額','銷貨收入 − 投資額 × 最低要求報酬率','邊際貢獻 − 固定成本'],'營業淨利 ÷ 投資額是 ROI。'],
+  ['cost','生產量大於銷售量時，吸收成本法與變動成本法的淨利比較？','吸收成本法淨利較高',['變動成本法淨利較高','兩者相同','無法判斷'],'吸收成本法把部分固定製造費用遞延在期末存貨中。'],
+  ['cost','有閒置產能時，決定是否接受特殊訂單，應比較什麼？','增額收入與增額成本，不考慮已分攤的固定成本',['訂單售價是否高於全部成本','訂單售價是否高於正常售價','是否能分攤更多固定成本'],'既有固定成本不受決策影響，屬非攸關成本。'],
+  ['cost','沉沒成本在決策中的性質？','非攸關成本',['攸關成本','機會成本','增額成本'],'已發生且無法改變的成本，不影響未來決策。'],
+
+  ['tax','營利事業所得稅的一般稅率？','20%',['17%','25%','12%'],'營利事業所得稅率自 107 年度起為 20%。'],
+  ['tax','營利事業當年度未分配盈餘，加徵營利事業所得稅的稅率？','5%',['10%','3%','20%'],'自 107 年度起由 10% 調降為 5%。'],
+  ['tax','營業稅（加值型）的一般稅率？','5%',['1%','2%','10%'],'小規模營業人為 1%。'],
+  ['tax','查定課徵的小規模營業人，營業稅稅率？','1%',['5%','2%','0.5%'],'加值型一般稅率才是 5%。'],
+  ['tax','營利事業全年課稅所得額在多少以下免徵營所稅？','12 萬元',['10 萬元','18 萬元','50 萬元'],'超過 12 萬元的部分有減半之緩衝規定。'],
+  ['tax','經稽徵機關核定的前期虧損，可自本年純益扣除的年限？','前 10 年',['前 5 年','前 3 年','前 7 年'],'須符合會計帳冊完備、如期申報等條件。'],
+  ['tax','居住者股利採合併計稅時，可抵減稅額的規定？','股利 8%，每戶上限 8 萬元',['股利 8%，每戶上限 20 萬元','股利 15%，每戶上限 8 萬元','不可抵減'],'也可選分開計稅，稅率 28%。'],
+  ['tax','居住者股利選擇分開計稅時的稅率？','28%',['20%','21%','40%'],'合併計稅與分開計稅擇一適用。'],
+  ['tax','買賣上市櫃股票的證券交易稅稅率（一般交易）？','千分之三',['千分之一','千分之二','百分之一'],'公司債及金融債券為千分之一；當沖另有減半優惠。'],
+  ['tax','非居住者取得股利，扣繳率？','21%',['18%','20%','10%'],'租稅協定國家可能適用較低稅率。'],
+  ['tax','非居住者取得薪資（一般情形），扣繳率？','18%',['21%','20%','5%'],'全月薪資未達基本工資 1.5 倍者可適用 6%。'],
+  ['tax','依規定申報且無故意以詐欺不正當方法逃漏稅，稅捐核課期間為？','5 年',['7 年','10 年','3 年'],'未於規定期間申報或故意逃漏者為 7 年。'],
+  ['tax','遺產稅應於被繼承人死亡之日起多久內申報？','6 個月內',['30 日內','3 個月內','1 年內'],'可申請延長 3 個月。'],
+  ['tax','贈與稅應於贈與行為發生後多久內申報？','30 日內',['6 個月內','15 日內','3 個月內'],'與遺產稅的 6 個月不同，易混淆。'],
+  ['tax','曆年制營利事業所得稅結算申報期間？','次年 5 月 1 日至 5 月 31 日',['次年 3 月 1 日至 3 月 31 日','次年 1 月 1 日至 1 月 31 日','次年 6 月 1 日至 6 月 30 日'],'綜合所得稅結算申報同為 5 月。'],
+
+  ['law','股份有限公司股東會「普通決議」的門檻？','已發行股份總數過半數出席，出席表決權過半數同意',['已發行股份總數三分之二出席，出席表決權過半數同意','已發行股份總數過半數出席，出席表決權三分之二同意','出席表決權過半數同意，無出席門檻'],'公司法第 174 條。'],
+  ['law','股份有限公司股東會「特別決議」的門檻（非公開發行）？','已發行股份總數三分之二以上出席，出席表決權過半數同意',['已發行股份總數過半數出席，出席表決權過半數同意','全體股東同意','已發行股份總數過半數出席，出席表決權四分之三同意'],'公開發行公司出席不足時，可改為過半數出席、出席表決權三分之二以上同意。'],
+  ['law','少數股東請求董事會召集股東臨時會的持股條件？','繼續 1 年以上，持有已發行股份總數 3% 以上',['繼續 3 個月以上，持有 1% 以上','繼續 1 年以上，持有 10% 以上','繼續 3 個月以上，持有過半數'],'公司法第 173 條；持股過半數且繼續 3 個月以上可自行召集（第 173-1 條）。'],
+  ['law','股東提案權的持股門檻？','持有已發行股份總數 1% 以上',['3% 以上','5% 以上','10% 以上'],'公司法第 172-1 條。'],
+  ['law','股東常會應於何時召開？','每會計年度終了後 6 個月內',['每會計年度終了後 3 個月內','每會計年度終了後 4 個月內','每半年一次'],'公司法第 170 條。'],
+  ['law','公開發行公司召開股東常會，應於幾日前通知？','30 日前',['20 日前','15 日前','10 日前'],'非公開發行：常會 20 日前、臨時會 10 日前；公開發行：常會 30 日前、臨時會 15 日前。'],
+  ['law','公司完納稅捐、彌補虧損後，法定盈餘公積的提列比率？','10%',['5%','20%','25%'],'已達實收資本額時可不再提列。'],
+  ['law','短線交易歸入權：內部人取得股票後，多久內再行賣出須將利益歸入公司？','6 個月內',['3 個月內','1 年內','30 日內'],'證券交易法第 157 條，買進賣出或賣出買進皆適用。'],
+  ['law','內線交易：重大消息明確後，至公開後多久內不得買賣？','18 小時內',['12 小時內','24 小時內','3 日內'],'證券交易法第 157-1 條。'],
+  ['law','證券交易法所稱內部人，股東持股須超過多少比例？','10%',['5%','3%','20%'],'董事、監察人、經理人及持股超過 10% 之股東。'],
+  ['law','公開發行公司董事人數的下限？','5 人',['3 人','7 人','2 人'],'證券交易法第 26-3 條；非公開發行股份有限公司為 3 人（或依章程僅置 1 或 2 人）。'],
+  ['law','公開發行公司設置獨立董事的人數下限？','不少於 2 人，且不少於董事席次五分之一',['不少於 1 人','不少於 3 人，且不少於董事席次三分之一','不少於董事席次二分之一'],'證券交易法第 14-2 條。'],
+  ['law','審計委員會的組成？','由全體獨立董事組成，不得少於 3 人',['由全體董事組成，不得少於 5 人','由獨立董事及監察人組成，不得少於 3 人','由會計師及獨立董事組成，不得少於 2 人'],'證券交易法第 14-4 條。']
+].map(([s, q, a, w, e]) => ({ s, q, a, w, e }));
+
+let cfg = { subj: 'all', level: 2 };
+try { Object.assign(cfg, JSON.parse(localStorage.getItem('cpa-card-cfg') || '{}')); } catch (e) {}
+let st;
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function start() {
+  const pool = BANK.filter(b => cfg.subj === 'all' || b.s === cfg.subj);
+  const n = cfg.level === 1 ? 2 : 3;
+  st = { i: 0, right: 0, items: shuffle(pool).map(b => ({ b, opts: shuffle([b.a, ...shuffle(b.w).slice(0, n)]), picked: null })) };
+  $('foot-l').textContent = cfg.subj === 'all' ? '得分' : `${SUBJ[cfg.subj]}　得分`;
+  closeLayer();
+  render();
+}
+
+function render() {
+  $('score').textContent = `${st.right} / ${st.items.length}`;
+  if (st.i >= st.items.length) return showResult();
+  const it = st.items[st.i], done = it.picked !== null;
+  $('stage').innerHTML = `
+    ${done ? `<div class="mark">${it.picked === it.b.a ? '✓' : '✗'}</div>` : ''}
+    <div class="prompt"><b>${SUBJ[it.b.s]}</b>第 ${st.i + 1} 題</div>
+    <div class="q">${esc(it.b.q)}</div>
+    <div class="progress"><span style="width:${(st.i + (done ? 1 : 0)) / st.items.length * 100}%"></span></div>
+    <div class="opts">${it.opts.map((o, k) => {
+      const cls = done && o === it.b.a ? 'right' : done && o === it.picked ? 'wrong' : '';
+      return `<button type="button" class="opt ${cls}" id="opt-${k}" data-k="${k}" ${done ? 'disabled' : ''}><kbd>${k + 1}</kbd><span>${esc(o)}</span></button>`;
+    }).join('')}</div>
+    ${done ? `<div class="ex"><small>解析</small>${esc(it.b.e)}</div>
+      <button type="button" class="next" id="next">下一題</button>` : ''}`;
+  $('stage').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => pick(+b.dataset.k)));
+  const nx = $('next');
+  if (nx) { nx.addEventListener('click', next); nx.focus({ preventScroll: true }); }
+}
+
+function pick(k) {
+  const it = st.items[st.i];
+  if (!it || it.picked !== null || !it.opts[k] || !$('layer').hidden) return;
+  it.picked = it.opts[k];
+  if (it.picked === it.b.a) st.right++;
+  render();
+}
+function next() { st.i++; render(); }
+
+function openLayer(title, html, onBind) {
+  const L = $('layer');
+  L.innerHTML = `<header><span>${title}</span><button class="ib" type="button" id="b-close" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header><div class="body">${html}</div>`;
+  L.hidden = false;
+  $('b-close').addEventListener('click', closeLayer);
+  onBind && onBind(L);
+}
+function closeLayer() { $('layer').hidden = true; }
+
+const count = s => BANK.filter(b => s === 'all' || b.s === s).length;
+function showSettings() {
+  const subjBtns = [['all', '全部科目'], ...Object.entries(SUBJ)].map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${cfg.subj === v}">${n} ${count(v)}</button>`).join('');
+  openLayer('設定', `
+    <div><div class="lbl">科目</div><div class="seg" data-key="subj">${subjBtns}</div></div>
+    <div><div class="lbl">選項數</div><div class="seg" data-key="level">
+      <button type="button" data-v="1" aria-pressed="${cfg.level === 1}">三選一</button>
+      <button type="button" data-v="2" aria-pressed="${cfg.level === 2}">四選一</button></div></div>
+    <p class="note">稅法與商事法依撰寫時的規定出題，條文或金額有修正時，以最新法規為準。改了設定會從頭開始。</p>
+    <button type="button" class="next" id="restart">重新開始</button>`, L => {
+    L.querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      cfg[s.dataset.key] = s.dataset.key === 'level' ? +b.dataset.v : b.dataset.v;
+      try { localStorage.setItem('cpa-card-cfg', JSON.stringify(cfg)); } catch (err) {}
+      start();
+    }));
+    $('restart').addEventListener('click', start);
+  });
+}
+
+let libSubj = 'all';
+const entry = (b, miss) => `<div class="entry${miss ? ' miss' : ''}"><div class="eq">${esc(b.q)}</div><div class="ea">${esc(b.a)}</div><div class="ee">${esc(b.e)}</div></div>`;
+function showLib() {
+  openLayer('重點整理', `
+    <input class="search" id="lib-q" type="search" placeholder="搜尋：繼續經營、IFRS 16、扣繳…">
+    <div class="seg" id="lib-seg"></div>
+    <div id="lib-list" style="display:grid;gap:12px"></div>`, () => {
+    const draw = () => {
+      $('lib-seg').innerHTML = [['all', '全部'], ...Object.entries(SUBJ)].map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${libSubj === v}">${n}</button>`).join('');
+      const term = $('lib-q').value.trim();
+      const list = BANK.filter(b => (libSubj === 'all' || b.s === libSubj) && (!term || (b.q + b.a + b.e).includes(term)));
+      $('lib-list').innerHTML = list.map(b => entry(b)).join('') || `<p class="center" style="color:var(--muted)">找不到符合的題目</p>`;
+    };
+    $('lib-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; libSubj = b.dataset.v; draw(); });
+    $('lib-q').addEventListener('input', draw);
+    draw();
+  });
+}
+
+function showResult() {
+  const pct = Math.round(st.right / st.items.length * 100);
+  const missed = st.items.filter(x => x.picked !== x.b.a);
+  openLayer('成績', `
+    <div class="big">${pct}<small style="font-size:1.3rem">分</small></div>
+    <p class="center" style="margin:0;color:var(--muted)">${st.items.length} 題答對 ${st.right} 題</p>
+    ${missed.length ? `<div class="lbl">答錯的題目</div>${missed.map(x => entry(x.b, true)).join('')}` : ''}
+    <button type="button" class="next" id="again">再練一次</button>`, () => $('again').addEventListener('click', start));
+}
+
+$('b-set').addEventListener('click', showSettings);
+$('b-lib').addEventListener('click', showLib);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') return closeLayer();
+  if (!$('layer').hidden || (e.target.matches && e.target.matches('input'))) return;
+  if (/^[1-4]$/.test(e.key)) pick(+e.key - 1);
+  else if (e.key === 'Enter' && st.items[st.i] && st.items[st.i].picked !== null) { e.preventDefault(); next(); }
+});
+
+start();
+</script>
+
+</body>
+</html>
