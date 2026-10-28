@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Countdown</title>
+<style>
+  /*
+    用法（網址參數）：
+    ?end=2027-08-21T23:12        結束時間（必填，格式 YYYY-MM-DDTHH:MM）
+    &tz=+08:00                   時區偏移，預設 +08:00（Asia/Taipei）
+    &title=會計師考試             標題，不填就不顯示
+    &theme=light | dark | auto   預設 auto（跟隨系統）
+  */
+  :root {
+    --bg: #ffffff;
+    --num: #37352f;      /* Notion 預設文字色 */
+    --label: #787774;
+    --done: #37352f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #191919;
+      --num: #e3e2e0;
+      --label: #9b9a97;
+      --done: #e3e2e0;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #191919;
+    --num: #e3e2e0;
+    --label: #9b9a97;
+    --done: #e3e2e0;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    font-family: "Inter", -apple-system, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+  }
+  #title {
+    color: var(--num);
+    font-size: clamp(14px, 3.2vw, 22px);
+    font-weight: 600;
+    margin: 0;
+  }
+  #clock {
+    display: flex;
+    gap: clamp(16px, 5vw, 48px);
+  }
+  .unit { text-align: center; }
+  .num {
+    color: var(--num);
+    font-size: clamp(32px, 10vw, 72px);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .lbl {
+    color: var(--label);
+    font-size: clamp(9px, 1.8vw, 13px);
+    letter-spacing: 0.35em;
+    margin-top: 0.6em;
+  }
+  #msg { color: var(--done); font-size: clamp(16px, 4vw, 28px); font-weight: 600; }
+</style>
+</head>
+<body>
+  <p id="title" hidden></p>
+  <div id="clock">
+    <div class="unit"><div class="num" id="d">0</div><div class="lbl">DAYS</div></div>
+    <div class="unit"><div class="num" id="h">00</div><div class="lbl">HOURS</div></div>
+    <div class="unit"><div class="num" id="m">00</div><div class="lbl">MINUTES</div></div>
+    <div class="unit"><div class="num" id="s">00</div><div class="lbl">SECONDS</div></div>
+  </div>
+  <div id="msg" hidden></div>
+
+<script>
+  const p = new URLSearchParams(location.search);
+  const end = p.get('end') || '2027-08-21T23:12';
+  const tz = p.get('tz') || '+08:00';
+  const title = p.get('title');
+  const theme = p.get('theme');
+
+  if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+  if (title) { const t = document.getElementById('title'); t.textContent = title; t.hidden = false; }
+
+  const target = new Date(end + (end.length === 16 ? ':00' : '') + tz).getTime();
+  const el = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, '0');
+
+  function tick() {
+    if (isNaN(target)) {
+      el('clock').hidden = true;
+      el('msg').hidden = false;
+      el('msg').textContent = '結束時間格式錯誤，請用 end=YYYY-MM-DDTHH:MM';
+      return;
+    }
+    let diff = Math.max(0, Math.floor((target - Date.now()) / 1000));
+    el('d').textContent = Math.floor(diff / 86400);
+    el('h').textContent = pad(Math.floor(diff % 86400 / 3600));
+    el('m').textContent = pad(Math.floor(diff % 3600 / 60));
+    el('s').textContent = pad(diff % 60);
+    if (diff === 0) { clearInterval(timer); el('msg').hidden = false; el('msg').textContent = '時間到'; }
+  }
+  tick();
+  const timer = setInterval(tick, 1000);
+</script>
+</body>
+</html>
